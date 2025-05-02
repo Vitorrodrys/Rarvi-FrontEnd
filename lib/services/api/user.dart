@@ -38,8 +38,12 @@ class UserError extends APIError{
 class AuthInterceptor extends Interceptor {
   final String _tokenCache;
   final Dio _dio;
+  Function(AuthErrorEnum) _sessionNotifier;
 
-  AuthInterceptor({required String token, required Dio dio}) : _tokenCache = token, _dio = dio; 
+  AuthInterceptor({required String token, required Dio dio, required Function(AuthErrorEnum) sessionNotifier}) : 
+    _tokenCache = token, 
+    _dio = dio,
+    _sessionNotifier = sessionNotifier; 
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
@@ -54,11 +58,14 @@ class AuthInterceptor extends Interceptor {
     _dio.interceptors.removeWhere((element) => element is AuthInterceptor);
     switch ((message, statusCode)) {
       case ({"detail":"Token expired"}, 401):
-        throw AuthError(message: message, cause: AuthErrorEnum.tokenExpired);
+        _sessionNotifier(AuthErrorEnum.tokenExpired);
+        return;
       case ({"detail": "User associated with token not found"}, 401):
-        throw AuthError(message: message, cause: AuthErrorEnum.userNotFound);
+        _sessionNotifier(AuthErrorEnum.userNotFound);
+        return;
       case ({"detail": "IP address mismatch"}, 401):
-        throw AuthError(message: message, cause: AuthErrorEnum.loggedOut);
+        _sessionNotifier(AuthErrorEnum.loggedOut);
+        return;
       default:
         handler.next(err);
     }
@@ -154,7 +161,7 @@ class UserAPI {
   bool _isEmail(String userIdentifier) {
     return RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$").hasMatch(userIdentifier);
   }
-  Future<void> auth(String userIdentifier, String password) async {
+  Future<void> auth(String userIdentifier, String password, Function(AuthErrorEnum) sessionNotifier) async {
     String? name, email;
     if (_isEmail(userIdentifier)) {
       email = userIdentifier;
@@ -172,7 +179,7 @@ class UserAPI {
         data: creds.toJson(),
       );
       _dio.interceptors.add(
-        AuthInterceptor(token: response.data, dio: _dio),
+        AuthInterceptor(token: response.data, dio: _dio, sessionNotifier: sessionNotifier),
       );
     } on DioException catch (e) {
       dynamic message = e.response?.data;

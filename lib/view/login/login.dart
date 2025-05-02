@@ -17,7 +17,49 @@ class _LoginState extends State<LoginScreen> {
   final TextEditingController _userController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
+  void _desconect_handler(AuthErrorEnum unloggedError){
+    Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+    switch (unloggedError) {
+      case AuthErrorEnum.tokenExpired:
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Sessão expirada"),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 10),
+          ),
+        );
+        break;
+      case AuthErrorEnum.loggedOut:
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Desconectado"),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 10),
+          ),
+        );
+        break;
+      case AuthErrorEnum.unauthorized:
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Usuário não autorizado"),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 10),
+          ),
+        );
+        break;
+      default:
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Desconectado"),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 2),
+          ),
+        );
+        break;
+    }
+  }
   void _do_login() async {
+    //TODO: improve the session handler using something to store the token, avoiding the need of login always that the app is opened
     String user = _userController.text;
     String password = _passwordController.text;
 
@@ -33,7 +75,7 @@ class _LoginState extends State<LoginScreen> {
     }
     final api = RarviAPI();
     try{
-      await api.user.auth(user, password);
+      await api.user.auth(user, password, _desconect_handler);
       Navigator.pushNamed(context, "/home");
     } on AuthError catch (e){
       switch (e.cause) {

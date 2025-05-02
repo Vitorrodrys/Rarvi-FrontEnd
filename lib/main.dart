@@ -15,7 +15,7 @@ void main() {
         '/signup': (context) => const SignUpScreen(),
         '/RecoveryPassword': (context) => const RecoveryScreen(),
         '/home': (context) => const HomeScreen(),
-      },
+      }, 
     )
   );
 }
