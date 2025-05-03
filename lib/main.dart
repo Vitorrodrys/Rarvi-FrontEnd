@@ -7,14 +7,36 @@ import 'package:rarvi/view/login/login.dart';
 import 'package:rarvi/view/login/recovery_password.dart';
 import 'package:rarvi/view/login/signup.dart';
 
+final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
 class RarviApp extends StatelessWidget {
 
   final RarviAPI _api = RarviAPI();
 
+
   final Widget _child;
   RarviApp({super.key, required Widget child}) 
-    : _child = child;
+    : _child = child
+  {
+    _api.addSessionListener(
+      'desconetHandler',
+      (error) => _desconect_handler(_navigatorKey.currentContext!, error),
+      [
+        APIErrorEnum.tokenExpired,
+        APIErrorEnum.loggedOut,
+        APIErrorEnum.unauthorized,
+      ]
+    );
+    _api.addSessionListener(
+      'connectionErrorHandler',
+      (error) => _connection_error_handler(_navigatorKey.currentContext!, error),
+      [
+        APIErrorEnum.timeout,
+        APIErrorEnum.connectionError,
+      ]
+    );
+  }
+
 
   void _desconect_handler(BuildContext context, APIErrorEnum unloggedError){
     switch (unloggedError) {
@@ -76,23 +98,6 @@ class RarviApp extends StatelessWidget {
    */
   @override
   Widget build(BuildContext context) {
-    _api.addSessionListener(
-      'desconetHandler',
-      (error) => _desconect_handler(context, error),
-      [
-        APIErrorEnum.tokenExpired,
-        APIErrorEnum.loggedOut,
-        APIErrorEnum.unauthorized,
-      ]
-    );
-    _api.addSessionListener(
-      'connectionErrorHandler',
-      (error) => _connection_error_handler(context, error),
-      [
-        APIErrorEnum.timeout,
-        APIErrorEnum.connectionError,
-      ]
-    );
     return _child;
   }
 }
@@ -100,6 +105,7 @@ class RarviApp extends StatelessWidget {
 void main() {
   runApp(
     MaterialApp(
+      navigatorKey: _navigatorKey,
       title: 'Rarvi',
       theme: ThemeData(
         primarySwatch: Colors.blue,

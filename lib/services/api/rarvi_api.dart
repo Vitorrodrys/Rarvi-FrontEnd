@@ -63,15 +63,15 @@ class _ErrorHandler extends Interceptor {
     switch ((message, statusCode)) {
       case ({"detail":"Token expired"}, 401):
         _warningAll(APIErrorEnum.tokenExpired);
-        handler.reject(err);
+        handler.next(err);//trigger the next interceptor
         return;
       case ({"detail": "User associated with token not found"}, 401):
         _warningAll(APIErrorEnum.userNotFound);
-        handler.reject(err);
+        handler.next(err);//trigger the next interceptor
         return;
       case ({"detail": "IP address mismatch"}, 401):
         _warningAll(APIErrorEnum.loggedOut);
-        handler.reject(err);
+        handler.next(err);//trigger the next interceptor
         return;
       default:
         handler.next(err);//trigger the next interceptor
