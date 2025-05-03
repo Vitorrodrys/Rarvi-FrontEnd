@@ -97,7 +97,7 @@ class RarviAPI {
       baseUrl: Settings.apiUrl,
       connectTimeout: const Duration(seconds: 15),
       receiveTimeout: const Duration(seconds: 15),
-      validateStatus: (status) => status == 200
+      validateStatus: (status) => status != null && status >= 200 && status < 300
     )
   ){
 
