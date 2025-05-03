@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'package:rarvi/services/api/rarvi_api.dart';
-import 'package:rarvi/services/api/user.dart';
 import 'package:rarvi/widgets/rounded_button.dart';
 import 'package:rarvi/widgets/rounded_text_field.dart';
 
@@ -16,11 +15,12 @@ class _LoginState extends State<LoginScreen> {
 
   final TextEditingController _userController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final RarviAPI _api = RarviAPI();
 
-  void _desconect_handler(AuthErrorEnum unloggedError){
-    Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+  void _desconect_handler(APIErrorEnum unloggedError){
     switch (unloggedError) {
-      case AuthErrorEnum.tokenExpired:
+      case APIErrorEnum.tokenExpired:
+        Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text("Sessão expirada"),
@@ -29,7 +29,8 @@ class _LoginState extends State<LoginScreen> {
           ),
         );
         break;
-      case AuthErrorEnum.loggedOut:
+      case APIErrorEnum.loggedOut:
+        Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text("Desconectado"),
@@ -38,7 +39,8 @@ class _LoginState extends State<LoginScreen> {
           ),
         );
         break;
-      case AuthErrorEnum.unauthorized:
+      case APIErrorEnum.unauthorized:
+        Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text("Usuário não autorizado"),
@@ -48,15 +50,41 @@ class _LoginState extends State<LoginScreen> {
         );
         break;
       default:
+        break;
+    }
+  }
+
+  void _connection_error_handler(APIErrorEnum error){
+    switch (error) {
+      case APIErrorEnum.timeout:
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text("Desconectado"),
+            content: Text("Erro de conexão, tente novamente mais tarde"),
             backgroundColor: Colors.red,
-            duration: Duration(seconds: 2),
+            duration: Duration(seconds: 10),
           ),
         );
         break;
+      case APIErrorEnum.connectionError:
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Erro de conexão, tente novamente mais tarde"),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 10),
+          ),
+        );
+        break;
+      default:
+        break;
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _api.addSessionListener('desconetHandler', _desconect_handler);
+    _api.addSessionListener('connectionErrorHandler', _connection_error_handler);
+  
   }
   void _do_login() async {
     //TODO: improve the session handler using something to store the token, avoiding the need of login always that the app is opened
@@ -73,13 +101,12 @@ class _LoginState extends State<LoginScreen> {
       );
       return;
     }
-    final api = RarviAPI();
     try{
-      await api.user.auth(user, password, _desconect_handler);
+      await _api.user.auth(user, password);
       Navigator.pushNamed(context, "/home");
-    } on AuthError catch (e){
+    } on APIError catch (e){
       switch (e.cause) {
-        case AuthErrorEnum.unauthorized:
+        case APIErrorEnum.unauthorized:
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text("Usuário ou senha incorretos"),

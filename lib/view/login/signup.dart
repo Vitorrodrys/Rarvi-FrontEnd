@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'package:rarvi/services/api/rarvi_api.dart';
 import 'package:rarvi/services/api/schemas/user.dart';
-import 'package:rarvi/services/api/user.dart';
 import 'package:rarvi/widgets/rounded_button.dart';
 import 'package:rarvi/widgets/rounded_text_field.dart';
 
@@ -55,9 +54,9 @@ class _SignUpState extends State<SignUpScreen> {
         ),
       );
       Navigator.pop(context); // Return to login
-    } on UserError catch (e){
+    } on APIError catch (e){
       switch (e.cause) {
-        case UserAPIErrorEnum.emailAlreadyExists:
+        case APIErrorEnum.emailAlreadyExists:
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text("Email já cadastrado"),
@@ -66,7 +65,7 @@ class _SignUpState extends State<SignUpScreen> {
             ),
           );
           break;
-        case UserAPIErrorEnum.usernameAlreadyExists:
+        case APIErrorEnum.usernameAlreadyExists:
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text("Nome de usuário já cadastrado"),
@@ -75,7 +74,7 @@ class _SignUpState extends State<SignUpScreen> {
             ),
           );
           break;
-        case UserAPIErrorEnum.invalidEmail:
+        case APIErrorEnum.invalidEmail:
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text("Email inválido"),
