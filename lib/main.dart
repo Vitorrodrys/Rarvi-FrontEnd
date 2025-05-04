@@ -51,7 +51,7 @@ class RarviApp extends StatelessWidget {
         );
         break;
       case APIErrorEnum.loggedOut:
-        Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+        Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text("Desconectado"),
@@ -61,7 +61,7 @@ class RarviApp extends StatelessWidget {
         );
         break;
       case APIErrorEnum.unauthorized:
-        Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+        Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text("Usuário não autorizado"),
