@@ -12,7 +12,6 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginState extends State<LoginScreen> {
-
   final TextEditingController _userController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final RarviAPI _api = RarviAPI();
@@ -32,10 +31,10 @@ class _LoginState extends State<LoginScreen> {
       );
       return;
     }
-    try{
+    try {
       await _api.user.auth(user, password);
-      Navigator.pushNamed(context, "/home");
-    } on APIError catch (e){
+      Navigator.pushNamed(context, "/perfil");
+    } on APIError catch (e) {
       switch (e.cause) {
         case APIErrorEnum.unauthorized:
           ScaffoldMessenger.of(context).showSnackBar(
@@ -57,11 +56,9 @@ class _LoginState extends State<LoginScreen> {
           break;
       }
     }
-
   }
 
-
-  Widget _build_login_form(BuildContext context){
+  Widget _build_login_form(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -163,6 +160,7 @@ class _LoginState extends State<LoginScreen> {
       ],
     );
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -184,7 +182,7 @@ class _LoginState extends State<LoginScreen> {
                 ),
               ],
             ),
-            child: _build_login_form(context)
+            child: _build_login_form(context),
           ),
         ),
       ),

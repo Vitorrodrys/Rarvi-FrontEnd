@@ -1,23 +1,21 @@
 import 'package:flutter/material.dart';
 
 import 'package:rarvi/services/api/rarvi_api.dart';
+import 'package:rarvi/view/criar_card/criar_card.dart';
 
 import 'package:rarvi/view/home/home.dart';
 import 'package:rarvi/view/login/login.dart';
 import 'package:rarvi/view/login/recovery_password.dart';
 import 'package:rarvi/view/login/signup.dart';
+import 'package:rarvi/view/perfil/perfil.dart';
 
 final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
 class RarviApp extends StatelessWidget {
-
   final RarviAPI _api = RarviAPI();
 
-
   final Widget _child;
-  RarviApp({super.key, required Widget child}) 
-    : _child = child
-  {
+  RarviApp({super.key, required Widget child}) : _child = child {
     _api.addSessionListener(
       'desconetHandler',
       (error) => _desconect_handler(_navigatorKey.currentContext!, error),
@@ -25,23 +23,22 @@ class RarviApp extends StatelessWidget {
         APIErrorEnum.tokenExpired,
         APIErrorEnum.loggedOut,
         APIErrorEnum.unauthorized,
-      ]
+      ],
     );
     _api.addSessionListener(
       'connectionErrorHandler',
-      (error) => _connection_error_handler(_navigatorKey.currentContext!, error),
-      [
-        APIErrorEnum.timeout,
-        APIErrorEnum.connectionError,
-      ]
+      (error) =>
+          _connection_error_handler(_navigatorKey.currentContext!, error),
+      [APIErrorEnum.timeout, APIErrorEnum.connectionError],
     );
   }
 
-
-  void _desconect_handler(BuildContext context, APIErrorEnum unloggedError){
+  void _desconect_handler(BuildContext context, APIErrorEnum unloggedError) {
     switch (unloggedError) {
       case APIErrorEnum.tokenExpired:
-        Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+        Navigator.of(
+          context,
+        ).pushNamedAndRemoveUntil('/login', (route) => false);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text("Sessão expirada"),
@@ -51,7 +48,9 @@ class RarviApp extends StatelessWidget {
         );
         break;
       case APIErrorEnum.loggedOut:
-        Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+        Navigator.of(
+          context,
+        ).pushNamedAndRemoveUntil('/login', (route) => false);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text("Desconectado"),
@@ -61,7 +60,9 @@ class RarviApp extends StatelessWidget {
         );
         break;
       case APIErrorEnum.unauthorized:
-        Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+        Navigator.of(
+          context,
+        ).pushNamedAndRemoveUntil('/login', (route) => false);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text("Usuário não autorizado"),
@@ -75,7 +76,7 @@ class RarviApp extends StatelessWidget {
     }
   }
 
-  void _connection_error_handler(BuildContext context, APIErrorEnum error){
+  void _connection_error_handler(BuildContext context, APIErrorEnum error) {
     switch (error) {
       case APIErrorEnum.timeout:
       case APIErrorEnum.connectionError:
@@ -92,10 +93,8 @@ class RarviApp extends StatelessWidget {
     }
   }
 
-  /**
-   * This method is just a wrapper to add the session listeners to the API
-   * and redirect the user to the login screen.
-   */
+  /// This method is just a wrapper to add the session listeners to the API
+  /// and redirect the user to the login screen.
   @override
   Widget build(BuildContext context) {
     return _child;
@@ -107,16 +106,16 @@ void main() {
     MaterialApp(
       navigatorKey: _navigatorKey,
       title: 'Rarvi',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      theme: ThemeData(primarySwatch: Colors.blue, fontFamily: 'Quicksand'),
       initialRoute: '/login',
       routes: {
         '/login': (context) => RarviApp(child: const LoginScreen()),
         '/signup': (context) => const SignUpScreen(),
         '/RecoveryPassword': (context) => const RecoveryScreen(),
         '/home': (context) => const HomeScreen(),
+        '/perfil': (context) => const PerfilScreen(),
+        '/criarCard': (context) => const CriarCardScreen(),
       },
-    )
+    ),
   );
 }
