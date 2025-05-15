@@ -3,17 +3,19 @@ import 'package:dio/dio.dart';
 import 'package:rarvi/services/api/rarvi_api.dart';
 import 'package:rarvi/services/api/schemas/user.dart';
 
-
 class AuthInterceptor extends Interceptor {
   final String _tokenCache;
   final Dio _dio;
 
   AuthInterceptor({required String token, required Dio dio})
-      : _dio = dio,
-        _tokenCache = token;
+    : _dio = dio,
+      _tokenCache = token;
 
   @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
+  void onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
     options.headers['Authorization'] = 'Bearer $_tokenCache';
     handler.next(options);
   }
@@ -27,10 +29,8 @@ class AuthInterceptor extends Interceptor {
   }
 }
 
-
 class UserAPI {
-
-  Dio _dio;
+  final Dio _dio;
 
   UserAPI({required Dio dio}) : _dio = dio;
 
@@ -39,11 +39,11 @@ class UserAPI {
     return User.fromJsonList(response.data);
   }
 
-  Future<User> getUser(int id) async {
-    try{
-      final response = await _dio.get("/v1/user/user/$id");
+  Future<User> getUser() async {
+    try {
+      final response = await _dio.get("/v1/user/user");
       return User.fromJson(response.data);
-    } on DioException catch (e){
+    } on DioException catch (e) {
       dynamic message = e.response?.data;
       int statusCode = e.response?.statusCode ?? 0;
       switch ((message, statusCode)) {
@@ -56,7 +56,7 @@ class UserAPI {
   }
 
   Future<User> deleteUser(int id) async {
-    try{
+    try {
       final response = await _dio.delete("/v1/user/user/$id");
       return User.fromJson(response.data);
     } on DioException catch (e) {
@@ -64,7 +64,10 @@ class UserAPI {
       int statusCode = e.response?.statusCode ?? 0;
       switch ((message, statusCode)) {
         case ({"detail": "A user can only delete themselves"}, 403):
-          throw APIError(message: message, cause: APIErrorEnum.deletionForbidden);
+          throw APIError(
+            message: message,
+            cause: APIErrorEnum.deletionForbidden,
+          );
         case ({"detail": "A user can only update his own data"}, 403):
           throw APIError(message: message, cause: APIErrorEnum.updateForbidden);
         default:
@@ -74,8 +77,11 @@ class UserAPI {
   }
 
   Future<User> updateUser(int id, UserUpdateSchema user) async {
-    try{
-      final response = await _dio.patch("/v1/user/user/$id", data: user.toJson());
+    try {
+      final response = await _dio.patch(
+        "/v1/user/user/$id",
+        data: user.toJson(),
+      );
       return User.fromJson(response.data);
     } on DioException catch (e) {
       dynamic message = e.response?.data;
@@ -92,7 +98,7 @@ class UserAPI {
   }
 
   Future<User> createUser(UserCreateSchema user) async {
-    try{
+    try {
       final response = await _dio.post("/v1/user/user", data: user.toJson());
       return User.fromJson(response.data);
     } on DioException catch (e) {
@@ -103,44 +109,43 @@ class UserAPI {
       }
       switch ((message, statusCode)) {
         case ({"detail": "User with this email already exists"}, 400):
-          throw APIError(message: message, cause: APIErrorEnum.emailAlreadyExists);
+          throw APIError(
+            message: message,
+            cause: APIErrorEnum.emailAlreadyExists,
+          );
         case ({"detail": "User with this name already exists"}, 400):
-          throw APIError(message: message, cause: APIErrorEnum.usernameAlreadyExists);
+          throw APIError(
+            message: message,
+            cause: APIErrorEnum.usernameAlreadyExists,
+          );
         default:
           rethrow;
-      
       }
     }
   }
 
   bool _isEmail(String userIdentifier) {
-    return RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$").hasMatch(userIdentifier);
+    return RegExp(
+      r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$",
+    ).hasMatch(userIdentifier);
   }
+
   Future<void> auth(String userIdentifier, String password) async {
     String? name, email;
     if (_isEmail(userIdentifier)) {
       email = userIdentifier;
-    }else {
+    } else {
       name = userIdentifier;
     }
-    final creds = UserAuthSchema(
-      name: name,
-      email: email,
-      password: password
-    );
+    final creds = UserAuthSchema(name: name, email: email, password: password);
     try {
-      final response = await _dio.post(
-        "/v1/user/auth",
-        data: creds.toJson(),
-      );
-      _dio.interceptors.add(
-        AuthInterceptor(token: response.data, dio: _dio),
-      );
+      final response = await _dio.post("/v1/user/auth", data: creds.toJson());
+      _dio.interceptors.add(AuthInterceptor(token: response.data, dio: _dio));
     } on DioException catch (e) {
       dynamic message = e.response?.data;
       int statusCode = e.response?.statusCode ?? 0;
       switch ((message, statusCode)) {
-        case ({"detail":"Unauthorized"}, 401):
+        case ({"detail": "Unauthorized"}, 401):
           throw APIError(message: message, cause: APIErrorEnum.unauthorized);
         default:
           rethrow;
