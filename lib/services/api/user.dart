@@ -29,7 +29,7 @@ class AuthInterceptor extends Interceptor {
   }
 }
 
-class UserAPI {
+class UserAPI extends BaseAPI{
   final Dio _dio;
 
   UserAPI({required Dio dio}) : _dio = dio;
