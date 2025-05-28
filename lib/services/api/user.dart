@@ -130,7 +130,7 @@ class UserAPI {
     ).hasMatch(userIdentifier);
   }
 
-  Future<void> auth(String userIdentifier, String password) async {
+  Future<String> auth(String userIdentifier, String password) async {
     String? name, email;
     if (_isEmail(userIdentifier)) {
       email = userIdentifier;
@@ -141,6 +141,7 @@ class UserAPI {
     try {
       final response = await _dio.post("/v1/user/auth", data: creds.toJson());
       _dio.interceptors.add(AuthInterceptor(token: response.data, dio: _dio));
+      return response.data;
     } on DioException catch (e) {
       dynamic message = e.response?.data;
       int statusCode = e.response?.statusCode ?? 0;
@@ -151,6 +152,10 @@ class UserAPI {
           rethrow;
       }
     }
+  }
+
+  void auth_with_token(String token){
+    _dio.interceptors.add(AuthInterceptor(token: token, dio: _dio));
   }
 
   void logout() {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:rarvi/services/api/rarvi_api.dart';
+import 'package:rarvi/services/token_manager.dart';
 import 'package:rarvi/widgets/rounded_button.dart';
 import 'package:rarvi/widgets/rounded_text_field.dart';
 
@@ -15,9 +16,9 @@ class _LoginState extends State<LoginScreen> {
   final TextEditingController _userController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final RarviAPI _api = RarviAPI();
+  final TokenManager _tkManager = TokenManager();
 
   void _do_login() async {
-    //TODO: improve the session handler using something to store the token, avoiding the need of login always that the app is opened
     String user = _userController.text;
     String password = _passwordController.text;
 
@@ -32,8 +33,9 @@ class _LoginState extends State<LoginScreen> {
       return;
     }
     try {
-      await _api.user.auth(user, password);
+      String authToken = await _api.user.auth(user, password);
       Navigator.pushNamed(context, "/perfil");
+      _tkManager.save(authToken);
     } on APIError catch (e) {
       switch (e.cause) {
         case APIErrorEnum.unauthorized:
@@ -161,8 +163,28 @@ class _LoginState extends State<LoginScreen> {
     );
   }
 
+  Future<void> _tryLogWithToken() async {
+    final String? token = await _tkManager.get();
+    if ( token == null ){
+      return;
+    }
+    Navigator.pushNamed(context, "/perfil");
+    _api.addSessionListener(
+      "tokenExpiredHandler",
+      (error) {
+        _tkManager.drop();
+      },
+      [
+        APIErrorEnum.tokenExpired,
+        APIErrorEnum.loggedOut,
+        APIErrorEnum.unauthorized,
+      ]
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    _tryLogWithToken();
     return Scaffold(
       backgroundColor: Colors.blue[700],
       body: Center(
