@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:rarvi/services/api/rarvi_api.dart';
-
+import 'package:rarvi/services/token_manager.dart';
 
 
 class HomeScreen extends StatefulWidget {
@@ -24,7 +24,8 @@ class _HomeState extends State<HomeScreen> {
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () {
-            _api.user.logout();
+              _api.user.logout();
+              TokenManager.drop();
               Navigator.pop(context);
             },
           ),
