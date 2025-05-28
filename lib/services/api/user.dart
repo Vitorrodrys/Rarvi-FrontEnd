@@ -154,7 +154,7 @@ class UserAPI {
     }
   }
 
-  void auth_with_token(String token){
+  void authWithToken(String token){
     _dio.interceptors.add(AuthInterceptor(token: token, dio: _dio));
   }
 

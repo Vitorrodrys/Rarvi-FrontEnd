@@ -17,6 +17,19 @@ class _LoginState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final RarviAPI _api = RarviAPI();
 
+  Future<void> _registerTokenExpiredCallBack() async {
+    _api.addSessionListener(
+      "tokenExpiredHandler",
+      (error) {
+        TokenManager.drop();
+      },
+      [
+        APIErrorEnum.tokenExpired,
+        APIErrorEnum.loggedOut,
+        APIErrorEnum.unauthorized,
+      ]
+    );
+  }
   void _do_login() async {
     String user = _userController.text;
     String password = _passwordController.text;
@@ -35,6 +48,7 @@ class _LoginState extends State<LoginScreen> {
       String authToken = await _api.user.auth(user, password);
       TokenManager.save(authToken);
       Navigator.pushNamed(context, "/perfil");
+      _registerTokenExpiredCallBack();
     } on APIError catch (e) {
       switch (e.cause) {
         case APIErrorEnum.unauthorized:
@@ -167,18 +181,9 @@ class _LoginState extends State<LoginScreen> {
     if ( token == null ){
       return;
     }
+    _api.user.authWithToken(token);
+    _registerTokenExpiredCallBack();
     Navigator.pushNamed(context, "/perfil");
-    _api.addSessionListener(
-      "tokenExpiredHandler",
-      (error) {
-        TokenManager.drop();
-      },
-      [
-        APIErrorEnum.tokenExpired,
-        APIErrorEnum.loggedOut,
-        APIErrorEnum.unauthorized,
-      ]
-    );
   }
 
   @override
