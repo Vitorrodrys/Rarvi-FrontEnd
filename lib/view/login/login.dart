@@ -16,7 +16,6 @@ class _LoginState extends State<LoginScreen> {
   final TextEditingController _userController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final RarviAPI _api = RarviAPI();
-  final TokenManager _tkManager = TokenManager();
 
   void _do_login() async {
     String user = _userController.text;
@@ -34,8 +33,8 @@ class _LoginState extends State<LoginScreen> {
     }
     try {
       String authToken = await _api.user.auth(user, password);
+      TokenManager.save(authToken);
       Navigator.pushNamed(context, "/perfil");
-      _tkManager.save(authToken);
     } on APIError catch (e) {
       switch (e.cause) {
         case APIErrorEnum.unauthorized:
@@ -164,7 +163,7 @@ class _LoginState extends State<LoginScreen> {
   }
 
   Future<void> _tryLogWithToken() async {
-    final String? token = await _tkManager.get();
+    final String? token = await TokenManager.get();
     if ( token == null ){
       return;
     }
@@ -172,7 +171,7 @@ class _LoginState extends State<LoginScreen> {
     _api.addSessionListener(
       "tokenExpiredHandler",
       (error) {
-        _tkManager.drop();
+        TokenManager.drop();
       },
       [
         APIErrorEnum.tokenExpired,
