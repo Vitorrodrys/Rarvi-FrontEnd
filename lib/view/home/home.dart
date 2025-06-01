@@ -165,7 +165,9 @@ class _HomeState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return FabNavScaffold(
       fabAction: () {},
-      homeAction: () => setState(() {}),
+      homeAction: () => setState(() {
+        _loadInfo();
+      }),
       perfilAction: () {
         Navigator.pop(context);
         Navigator.pushNamed(context, "/perfil");
