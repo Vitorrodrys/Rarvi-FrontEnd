@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:rarvi/services/api/rarvi_api.dart';
 import 'package:rarvi/widgets/rounded_button.dart';
 import 'package:rarvi/widgets/rounded_text_field.dart';
-
+import 'package:rarvi/services/notification_token_handler.dart';
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -33,6 +33,7 @@ class _LoginState extends State<LoginScreen> {
     }
     try {
       await _api.user.auth(user, password);
+      requestToken();
       Navigator.pushNamed(context, "/perfil");
     } on APIError catch (e) {
       switch (e.cause) {

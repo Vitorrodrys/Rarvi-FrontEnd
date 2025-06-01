@@ -105,7 +105,6 @@ class RarviApp extends StatelessWidget {
 
 void main() async {
   await initNotificationHandler();
-  requestToken();
   runApp(
     MaterialApp(
       navigatorKey: _navigatorKey,
