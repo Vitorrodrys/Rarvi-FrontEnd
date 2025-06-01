@@ -3,6 +3,8 @@ import 'package:dio/dio.dart';
 
 
 import 'package:rarvi/core/settings.dart';
+import 'package:rarvi/services/api/card.dart';
+import 'package:rarvi/services/api/discipline.dart';
 import 'package:rarvi/services/api/user.dart';
 
 enum APIErrorEnum {
@@ -12,6 +14,11 @@ enum APIErrorEnum {
   receiveTimeout,
   connectionError,
 
+  //permission errors
+  acessNotAllowed,
+
+  //validation errors
+  validationSchemaError,
 
   //user errors
   userNotExist,
@@ -25,7 +32,16 @@ enum APIErrorEnum {
   userNotFound,
   tokenExpired,
   loggedOut,
-  unauthorized
+  unauthorized,
+
+  //card errors
+  associatedDisciplineNotFound,
+  cardNotFound,
+
+  //discipline errors
+  disciplineAlreadyExist,
+  disciplineDeleteConflict,
+  emptyDiscipline;
 }
 
 class APIError implements Exception{
@@ -79,11 +95,40 @@ class _ErrorHandler extends Interceptor {
   }
 }
 
+abstract class BaseAPI {
+  /// This method should only be called by subclasses of BaseAPI.
+  /// It interprets a FastAPI validation error and converts it into a map like:
+  ///
+  /// {
+  ///   "invalid_field": {"cause": "validation error cause", ...other useful fields}
+  /// }
+  ///
+  /// Returns an APIError instance with the formatted error map as its message.
+  APIError processValidationError(Map<String, dynamic> errorMessage) {
+    List<Map<String, dynamic>> errorDetail = errorMessage['detail'];
+    Map<String, Map<String, dynamic>> errorFormatted = {};
+
+    for (var value in errorDetail) {
+      errorFormatted[value['loc'][1]] = {
+        "cause": value['type'],
+        ...value['ctx'],
+      };
+    }
+
+    return APIError(
+      message: errorFormatted,
+      cause: APIErrorEnum.validationSchemaError,
+    );
+  }
+}
+
 class RarviAPI {
 
   static final RarviAPI _singleton = RarviAPI._internal();
   final Dio _dio;
   late final UserAPI user;
+  late final CardAPI card;
+  late final DisciplineAPI discipline;
   final Map<String, List<APIErrorEnum>> _listenersTypeMapping = {};
   final Map<APIErrorEnum, Map<String, Function(APIErrorEnum)>> _onErrorMapping = {};
 
@@ -102,6 +147,8 @@ class RarviAPI {
   ){
 
     user = UserAPI(dio: _dio);
+    card = CardAPI(dio: _dio);
+    discipline = DisciplineAPI(dio: _dio);
 
     _dio.interceptors.add(_ErrorHandler(_onErrorMapping));
   }
