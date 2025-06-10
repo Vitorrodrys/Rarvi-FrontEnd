@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:rarvi/services/api/rarvi_api.dart';
 import 'package:rarvi/view/criar_card/criar_card.dart';
 
+import 'package:rarvi/view/discipline/discipline_creation.dart';
 import 'package:rarvi/view/home/home.dart';
 import 'package:rarvi/view/login/login.dart';
 import 'package:rarvi/view/login/recovery_password.dart';
@@ -115,6 +116,7 @@ void main() {
         '/home': (context) => const HomeScreen(),
         '/perfil': (context) => const PerfilScreen(),
         '/criarCard': (context) => const CriarCardScreen(),
+        '/add_discipline': (context) => const DisciplineCreationScreen()
       },
     ),
   );

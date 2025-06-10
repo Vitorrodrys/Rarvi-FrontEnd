@@ -30,6 +30,15 @@ class _PerfilScreenState extends State<PerfilScreen> {
   @override
   Widget build(BuildContext context) {
     return FabNavScaffold(
+      perfilAction: () => setState(() {
+        getUserName();
+      }),
+      homeAction: (){
+        Navigator.pop(context);
+        Navigator.pushNamed(context, "/home");
+      },
+      fabAction: (){},
+      selectedItem: FabNavItem.perfil,
       body: Column(
         children: [
           SizedBox(

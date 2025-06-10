@@ -54,7 +54,7 @@ class CardAPI extends BaseAPI {
     return Card.fromJsonList(response.data);
   }
 
-  Future<int> countCards(int? disciplineId, DateTime? fromDate, DateTime? toDate) async {
+  Future<int> countCards({int? disciplineId, DateTime? fromDate, DateTime? toDate}) async {
     final queryParams = {
       if (disciplineId != null) 'discipline_id': disciplineId,
       if (fromDate != null) 'from_date': fromDate.toIso8601String(),
