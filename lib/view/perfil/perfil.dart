@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:rarvi/services/api/rarvi_api.dart';
 import 'package:rarvi/services/api/schemas/user.dart';
 import 'package:rarvi/widgets/fab_nav_scaffold.dart';
+import 'package:rarvi/services/token_manager.dart';
 
 /// Tela de perfil usando o scaffold genérico
 class PerfilScreen extends StatefulWidget {
@@ -30,14 +31,15 @@ class _PerfilScreenState extends State<PerfilScreen> {
   @override
   Widget build(BuildContext context) {
     return FabNavScaffold(
-      perfilAction: () => setState(() {
-        getUserName();
-      }),
-      homeAction: (){
+      perfilAction:
+          () => setState(() {
+            getUserName();
+          }),
+      homeAction: () {
         Navigator.pop(context);
         Navigator.pushNamed(context, "/home");
       },
-      fabAction: (){},
+      fabAction: () {},
       selectedItem: FabNavItem.perfil,
       body: Column(
         children: [
@@ -127,6 +129,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
                         ),
                       ),
                       onPressed: () {
+                        TokenManager.drop();
                         RarviAPI().user.logout();
                         Navigator.pop(context);
                       },

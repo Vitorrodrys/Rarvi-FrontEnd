@@ -116,7 +116,7 @@ void main() {
         '/home': (context) => const HomeScreen(),
         '/perfil': (context) => const PerfilScreen(),
         '/criarCard': (context) => const CriarCardScreen(),
-        '/add_discipline': (context) => const DisciplineCreationScreen()
+        '/add_discipline': (context) => const DisciplineCreationScreen(),
       },
     ),
   );

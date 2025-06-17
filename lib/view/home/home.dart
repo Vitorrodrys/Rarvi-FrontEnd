@@ -16,40 +16,42 @@ class _HomeState extends State<HomeScreen> {
   final RarviAPI _api = RarviAPI();
 
   Widget _studiedCardsInfo = Center(
-    child: SizedBox(
-      width: 40,
-      height: 40,
-      child: CircularProgressIndicator(),
-    ),
+    child: SizedBox(width: 40, height: 40, child: CircularProgressIndicator()),
   );
 
   Widget _createdCardsInfo = Center(
-    child: SizedBox(
-      width: 40,
-      height: 40,
-      child: CircularProgressIndicator(),
-    ),
+    child: SizedBox(width: 40, height: 40, child: CircularProgressIndicator()),
   );
   List<Widget> _disciplinesList = [CircularProgressIndicator()];
 
-  Future<Widget> _disciplineBox(Discipline userDiscipline, DateTime today) async {
+  Future<Widget> _disciplineBox(
+    Discipline userDiscipline,
+    DateTime today,
+  ) async {
     int countStudied = await _api.card.countCards(
       disciplineId: userDiscipline.id,
       fromDate: today,
     );
     int total = await _api.card.countCards(disciplineId: userDiscipline.id);
-    
+
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            Icon(Icons.bookmark, color: Color.fromARGB(255, userDiscipline.red, userDiscipline.green, userDiscipline.blue), size: 28),
+            Icon(
+              Icons.bookmark,
+              color: Color.fromARGB(
+                255,
+                userDiscipline.red,
+                userDiscipline.green,
+                userDiscipline.blue,
+              ),
+              size: 28,
+            ),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
@@ -57,35 +59,27 @@ class _HomeState extends State<HomeScreen> {
                 children: [
                   Text(
                     userDiscipline.name,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16,
-                    ),
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    (total > 0)?"$countStudied/$total":"Nenhum conteudo até então!",
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 14,
-                    ),
+                    (total > 0)
+                        ? "$countStudied/$total"
+                        : "Nenhum conteudo até então!",
+                    style: TextStyle(color: Colors.grey[600], fontSize: 14),
                   ),
                   const SizedBox(height: 4),
                   if (total > 0)
                     LinearProgressIndicator(
-                      value: countStudied/total,
+                      value: countStudied / total,
                       backgroundColor: Colors.grey[300],
                       color: Colors.blueAccent,
                       minHeight: 4,
-                    )
+                    ),
                 ],
               ),
             ),
-            Icon(
-              Icons.chevron_right,
-              color: Colors.grey[500],
-              size: 24,
-            ),
+            Icon(Icons.chevron_right, color: Colors.grey[500], size: 24),
           ],
         ),
       ),
@@ -114,7 +108,8 @@ class _HomeState extends State<HomeScreen> {
       );
     });
 
-    List<Discipline> userDisciplines = await _api.discipline.getUserDisciplines();
+    List<Discipline> userDisciplines =
+        await _api.discipline.getUserDisciplines();
 
     if (userDisciplines.isEmpty) {
       setState(() {
@@ -123,11 +118,19 @@ class _HomeState extends State<HomeScreen> {
       return;
     }
     _disciplinesList = [
-      for (var discipline in userDisciplines.sublist(0, userDisciplines.length - 1))
+      for (var discipline in userDisciplines.sublist(
+        0,
+        userDisciplines.length - 1,
+      ))
         await _disciplineBox(discipline, fromDate),
       const SizedBox(height: 12),
     ];
-    _disciplinesList += [await _disciplineBox(userDisciplines[userDisciplines.length - 1], fromDate)];
+    _disciplinesList += [
+      await _disciplineBox(
+        userDisciplines[userDisciplines.length - 1],
+        fromDate,
+      ),
+    ];
     setState(() {});
   }
 
@@ -142,11 +145,7 @@ class _HomeState extends State<HomeScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.menu_book,
-            size: 80,
-            color: Colors.grey[400],
-          ),
+          Icon(Icons.menu_book, size: 80, color: Colors.grey[400]),
           const SizedBox(height: 20),
           Text(
             "Nenhuma disciplina cadastrada",
@@ -166,9 +165,10 @@ class _HomeState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return FabNavScaffold(
       fabAction: () {},
-      homeAction: () => setState(() {
-        _loadInfo();
-      }),
+      homeAction:
+          () => setState(() {
+            _loadInfo();
+          }),
       perfilAction: () {
         Navigator.pop(context);
         Navigator.pushNamed(context, "/perfil");
@@ -187,10 +187,7 @@ class _HomeState extends State<HomeScreen> {
               const SizedBox(height: 16),
               const Text(
                 "Home",
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
               Row(
@@ -207,10 +204,7 @@ class _HomeState extends State<HomeScreen> {
                 children: [
                   const Text(
                     "Disciplinas",
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   IconButton(
                     icon: Icon(Icons.add_circle, color: Colors.green),
