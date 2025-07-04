@@ -37,9 +37,7 @@ class _DisciplineScreenState extends State<DisciplineScreen> {
   Future<void> _loadData() async {
     setState(() => _loading = true);
     try {
-      final discipline =
-          await rarviApi.discipline
-              .getUserDisciplines(); // Você pode substituir por um getDisciplineById se houver
+      final discipline = await rarviApi.discipline.getUserDisciplines();
       final found = discipline.firstWhere(
         (d) => d.id == widget.disciplineId,
         orElse: () => throw Exception("Disciplina não encontrada"),

@@ -115,7 +115,7 @@ void main() {
         '/RecoveryPassword': (context) => const RecoveryScreen(),
         '/home': (context) => const HomeScreen(),
         '/perfil': (context) => const PerfilScreen(),
-        '/criarCard': (context) => const CriarCardScreen(),
+        // '/criarCard': (context) => const CriarCardScreen(),
         '/add_discipline': (context) => const DisciplineCreationScreen(),
       },
     ),

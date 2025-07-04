@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rarvi/view/discipline/discipline_list.dart';
 import 'package:rarvi/view/home/card_info.dart';
 import 'package:rarvi/widgets/fab_nav_scaffold.dart';
 import 'package:rarvi/services/api/rarvi_api.dart';
@@ -40,47 +41,65 @@ class _HomeState extends State<HomeScreen> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            Icon(
-              Icons.bookmark,
-              color: Color.fromARGB(
-                255,
-                userDiscipline.red,
-                userDiscipline.green,
-                userDiscipline.blue,
+        child: InkWell(
+          hoverColor: Colors.transparent,
+          focusColor: Colors.transparent,
+          onTap:
+              () => {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (context) =>
+                            DisciplineScreen(disciplineId: userDiscipline.id),
+                  ),
+                ),
+              },
+          child: Row(
+            children: [
+              Icon(
+                Icons.bookmark,
+                color: Color.fromARGB(
+                  255,
+                  userDiscipline.red,
+                  userDiscipline.green,
+                  userDiscipline.blue,
+                ),
+                size: 28,
               ),
-              size: 28,
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    userDiscipline.name,
-                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    (total > 0)
-                        ? "$countStudied/$total"
-                        : "Nenhum conteudo até então!",
-                    style: TextStyle(color: Colors.grey[600], fontSize: 14),
-                  ),
-                  const SizedBox(height: 4),
-                  if (total > 0)
-                    LinearProgressIndicator(
-                      value: countStudied / total,
-                      backgroundColor: Colors.grey[300],
-                      color: Colors.blueAccent,
-                      minHeight: 4,
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      userDiscipline.name,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                      ),
                     ),
-                ],
+                    const SizedBox(height: 4),
+                    Text(
+                      (total > 0)
+                          ? "$countStudied/$total"
+                          : "Nenhum conteudo até então!",
+                      style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                    ),
+                    const SizedBox(height: 4),
+                    if (total > 0)
+                      LinearProgressIndicator(
+                        value: countStudied / total,
+                        backgroundColor: Colors.grey[300],
+                        color: Colors.blueAccent,
+                        minHeight: 4,
+                      ),
+                  ],
+                ),
               ),
-            ),
-            Icon(Icons.chevron_right, color: Colors.grey[500], size: 24),
-          ],
+              Icon(Icons.chevron_right, color: Colors.grey[500], size: 24),
+            ],
+          ),
         ),
       ),
     );
