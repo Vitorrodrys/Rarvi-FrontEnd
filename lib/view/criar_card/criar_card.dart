@@ -23,21 +23,19 @@ class CriarCardScreen extends StatelessWidget {
   final int to_discipline_id;
   const CriarCardScreen({super.key, required this.to_discipline_id});
 
-
-
   @override
   Widget build(BuildContext context) {
     final tituloController = TextEditingController();
     final perguntaController = TextEditingController();
 
-    final RarviAPI _api = RarviAPI();
+    final RarviAPI api = RarviAPI();
 
     return Scaffold(
       extendBody: true,
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF8A00D4), Color(0xFF2196F3)],
+            colors: [Color(0xFF2196F3), Color(0xFF2196F3)],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -114,13 +112,14 @@ class CriarCardScreen extends StatelessWidget {
                   height: 56,
                   child: ElevatedButton.icon(
                     onPressed: () {
-                      _api.card.createCard(
+                      api.card.createCard(
                         CardCreateSchema(
                           question: tituloController.text,
                           answer: perguntaController.text,
-                          discipline_id: to_discipline_id
-                        )
+                          discipline_id: to_discipline_id,
+                        ),
                       );
+                      Navigator.pop(context, true);
                     },
                     icon: const Icon(Icons.add, size: 28),
                     label: const Text(

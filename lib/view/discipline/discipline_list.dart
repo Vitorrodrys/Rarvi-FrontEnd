@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:rarvi/services/api/rarvi_api.dart';
 import 'package:rarvi/services/api/schemas/card.dart' as RarviCard;
 import 'package:rarvi/services/api/schemas/discipline.dart';
+import 'package:rarvi/view/criar_card/criar_card.dart';
+import 'package:rarvi/view/editar_card/editar_card.dart';
 import 'package:rarvi/widgets/fab_nav_scaffold.dart';
 
 void main() {
@@ -68,19 +70,24 @@ class _DisciplineScreenState extends State<DisciplineScreen> {
   @override
   Widget build(BuildContext context) {
     return FabNavScaffold(
-      selectedItem: FabNavItem.perfil,
+      selectedItem: FabNavItem.home,
       homeAction: () => Navigator.pushNamed(context, "/home"),
       perfilAction: () => Navigator.pushNamed(context, "/perfil"),
       fabAction: () {},
       body:
           _loading
               ? const Center(child: CircularProgressIndicator())
-              : Column(
-                children: [
-                  _buildHeader(),
-                  const SizedBox(height: 16),
-                  _buildPerguntasList(),
-                ],
+              : SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildHeader(),
+                    const SizedBox(height: 24),
+                    _buildPerguntasTitle(),
+                    const SizedBox(height: 8),
+                    _buildCardsList(),
+                  ],
+                ),
               ),
     );
   }
@@ -132,50 +139,83 @@ class _DisciplineScreenState extends State<DisciplineScreen> {
     );
   }
 
-  Widget _buildPerguntasList() {
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        child: ListView(
-          children: [
-            Row(
-              children: const [
-                Text(
-                  'Perguntas',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+  Widget _buildPerguntasTitle() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Row(
+        children: [
+          const Text(
+            'Perguntas',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(width: 8),
+          InkWell(
+            focusColor: Colors.transparent,
+            hoverColor: Colors.transparent,
+            onTap: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder:
+                      (_) => CriarCardScreen(
+                        to_discipline_id: widget.disciplineId,
+                      ),
                 ),
-                SizedBox(width: 8),
-                Icon(Icons.add_circle, color: Colors.green),
-              ],
-            ),
-            const SizedBox(height: 16),
-            ..._cards.map(
-              (c) => Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                padding: const EdgeInsets.symmetric(
-                  vertical: 16,
-                  horizontal: 16,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF5F5F5),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        c.question,
-                        style: const TextStyle(fontSize: 16),
+              );
+              _loadData();
+            },
+            child: const Icon(Icons.add_circle, color: Colors.green),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCardsList() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Column(
+        children:
+            _cards
+                .map(
+                  (c) => InkWell(
+                    focusColor: Colors.transparent,
+                    hoverColor: Colors.transparent,
+                    highlightColor: Colors.transparent,
+                    splashColor: Colors.transparent,
+                    onTap:
+                        () => {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => EditarCardScreen(cardId: c.id),
+                            ),
+                          ),
+                        },
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 16,
+                        horizontal: 16,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF5F5F5),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              c.question,
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    const Icon(Icons.edit, color: Colors.grey),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
+                  ),
+                )
+                .toList(),
       ),
     );
   }
