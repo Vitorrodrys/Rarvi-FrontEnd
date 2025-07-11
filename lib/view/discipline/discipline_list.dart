@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:rarvi/services/api/rarvi_api.dart';
 import 'package:rarvi/services/api/schemas/card.dart' as RarviCard;
 import 'package:rarvi/services/api/schemas/discipline.dart';
-import 'package:rarvi/view/criar_card/criar_card.dart';
-import 'package:rarvi/view/editar_card/editar_card.dart';
+import 'package:rarvi/view/card/criar_card.dart';
+import 'package:rarvi/view/card/editar_card.dart';
 import 'package:rarvi/widgets/fab_nav_scaffold.dart';
 
 void main() {
