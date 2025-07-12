@@ -2,8 +2,8 @@ name: Build and Commit APK
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - '*.*.*'
 
 jobs:
   build-apk:
