@@ -64,7 +64,7 @@ class _ErrorHandler extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    dynamic message = err.response?.data;
+    String message = err.response?.data?["detail"] ?? "";
     int statusCode = err.response?.statusCode ?? 0;
     if (err.type == DioExceptionType.connectionTimeout || err.type == DioExceptionType.receiveTimeout) {
       _warningAll(APIErrorEnum.timeout);
@@ -76,16 +76,21 @@ class _ErrorHandler extends Interceptor {
       handler.reject(err);
       return;
     }
+
     switch ((message, statusCode)) {
-      case ({"detail":"Token expired"}, 401):
+      case ("Broken token", 401):
+        _warningAll(APIErrorEnum.loggedOut);
+        handler.next(err);
+        break;
+      case ("Token expired", 401):
         _warningAll(APIErrorEnum.tokenExpired);
         handler.next(err);//trigger the next interceptor
         return;
-      case ({"detail": "User associated with token not found"}, 401):
+      case ("User associated with token not found", 401):
         _warningAll(APIErrorEnum.userNotFound);
         handler.next(err);//trigger the next interceptor
         return;
-      case ({"detail": "IP address mismatch"}, 401):
+      case ("IP address mismatch", 401):
         _warningAll(APIErrorEnum.loggedOut);
         handler.next(err);//trigger the next interceptor
         return;

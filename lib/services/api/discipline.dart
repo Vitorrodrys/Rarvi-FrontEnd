@@ -83,10 +83,13 @@ class DisciplineAPI extends BaseAPI {
     }
   }
 
-  Future <Card> getRandomByDiscipline(int disciplineId) async{
+  Future <List<Card>> getRandomByDiscipline(int disciplineId, int quantity) async{
     try{
-      final response = await _dio.patch("/v1/disciplines/discipline/$disciplineId/random-card/view");
-      return Card.fromJson(response.data);
+      final queryParams = {
+        "quantity": quantity
+      };
+      final response = await _dio.patch("/v1/disciplines/discipline/$disciplineId/random-cards/view", queryParameters: queryParams);
+      return Card.fromJsonList(response.data);
     } on DioException catch (e){
       dynamic message = e.response?.data;
       int statusCode = e.response?.statusCode??0;

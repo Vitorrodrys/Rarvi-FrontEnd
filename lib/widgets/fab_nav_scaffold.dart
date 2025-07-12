@@ -1,11 +1,28 @@
 import 'package:flutter/material.dart';
 
+enum FabNavItem { home, perfil }
+
 /// Scaffold fixo com FloatingActionButton e BottomAppBar inalterados
 class FabNavScaffold extends StatelessWidget {
   /// Conteúdo principal da tela
   final Widget body;
+  final VoidCallback perfilAction;
+  final VoidCallback homeAction;
+  final VoidCallback fabAction;
 
-  const FabNavScaffold({super.key, required this.body});
+
+  final FabNavItem selectedItem;
+
+  const FabNavScaffold(
+    {
+      super.key, 
+      required this.body,
+      required this.perfilAction,
+      required this.homeAction,
+      required this.fabAction,
+      required this.selectedItem
+    }
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -22,9 +39,7 @@ class FabNavScaffold extends StatelessWidget {
         ),
         child: Center(
           child: FloatingActionButton(
-            onPressed: () {
-              // Ação fixa do FAB
-            },
+            onPressed: fabAction,
             backgroundColor: Colors.orange,
             shape: const CircleBorder(),
             child: Image.asset(
@@ -62,10 +77,11 @@ class FabNavScaffold extends StatelessWidget {
                     'assets/images/home_bottom_nav.png',
                     width: 43,
                     height: 47,
+                    color: selectedItem == FabNavItem.home
+                      ? Colors.white
+                      :  Colors.grey,
                   ),
-                  onPressed: () {
-                    // Ação fixa do botão Home
-                  },
+                  onPressed: homeAction,
                 ),
                 const SizedBox(width: 48),
                 IconButton(
@@ -73,13 +89,14 @@ class FabNavScaffold extends StatelessWidget {
                     'assets/images/perfil_bottom_nav.png',
                     width: 43,
                     height: 47,
+                    color: selectedItem == FabNavItem.perfil
+                        ? Colors.white
+                        : Colors.grey,
                   ),
-                  onPressed: () {
-                    // Ação fixa do botão Perfil
-                  },
+                  onPressed: perfilAction,
                 ),
               ],
-            ),
+            ),  
           ),
         ),
       ),
@@ -87,18 +104,3 @@ class FabNavScaffold extends StatelessWidget {
   }
 }
 
-// Exemplo de uso:
-class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return FabNavScaffold(
-      body: Column(
-        children: [
-          // ... todo o layout do perfil permanece aqui
-        ],
-      ),
-    );
-  }
-}
