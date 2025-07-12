@@ -52,10 +52,10 @@ class Card {
 }
 
 enum CardDifficultyEnum {
-  again(-1),
-  hard(0),
-  medium(1),
-  easy(2);
+  again(2),
+  hard(1),
+  medium(0),
+  easy(-1);
 
   final int value;
 
