@@ -175,6 +175,25 @@ class _DisciplineScreenState extends State<DisciplineScreen> {
     );
   }
 
+  Future<bool?> showDeleteConfirmationDialog(BuildContext context) {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Confirmar deleção'),
+        content: Text('Tem certeza que deseja deletar esta pergunta?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false), // Cancela
+            child: Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true), // Confirma
+            child: Text('Deletar'),
+          ),
+        ],
+      ),
+    );
+  }
   Widget _buildCardsList() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -213,6 +232,17 @@ class _DisciplineScreenState extends State<DisciplineScreen> {
                               c.question,
                               style: const TextStyle(fontSize: 16),
                             ),
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.delete, color: Colors.redAccent),
+                            onPressed: () async {
+                              bool? confirmed = await showDeleteConfirmationDialog(context);
+                              if ( confirmed != true ) return;
+                              await rarviApi.card.deleteCard(c.id);
+                              setState(() {
+                                _loadData();
+                              });
+                            },
                           ),
                         ],
                       ),
