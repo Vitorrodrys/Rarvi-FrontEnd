@@ -70,52 +70,59 @@ class _CardReviewScreenState extends State<CardReviewScreen> {
       backgroundColor: const Color(0xFF2E64FE),
       body: SafeArea(
         child: Center(
-          child: isLoading || currentCard == null
-              ? const CircularProgressIndicator(color: Colors.white)
-              : Column(
-                  children: [
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      height: 280,
-                      width: 380,
-                      child: PageView(
-                        controller: _pageController,
-                        children: [
-                          _buildBookPage(currentCard!.question, title: 'Pergunta'),
-                          _buildBookPage(currentCard!.answer ?? "[sem resposta]", title: 'Resposta'),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      "Deslize ou toque ➡ para ver a resposta",
-                      style: TextStyle(color: Colors.white70),
-                    ),
-                    const SizedBox(height: 24),
-                    Text(
-                      "Selecione a dificuldade",
-                      style: TextStyle(fontSize: 18, color: Colors.white),
-                    ),
-                    const SizedBox(height: 12),
-                    _buildDifficultyChips(),
-                    const SizedBox(height: 20),
-                    ElevatedButton.icon(
-                      onPressed: sendFeedback,
-                      icon: Icon(Icons.check),
-                      label: Text("Enviar Feedback"),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orange,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 14,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
+          child:
+              isLoading || currentCard == null
+                  ? const CircularProgressIndicator(color: Colors.white)
+                  : Column(
+                    children: [
+                      const SizedBox(height: 20),
+                      SizedBox(
+                        height: 280,
+                        width: 380,
+                        child: PageView(
+                          controller: _pageController,
+                          children: [
+                            _buildBookPage(
+                              currentCard!.question,
+                              title: 'Pergunta',
+                            ),
+                            _buildBookPage(
+                              currentCard!.answer ?? "[sem resposta]",
+                              title: 'Resposta',
+                            ),
+                          ],
                         ),
                       ),
-                    ),
-                  ],
-                ),
+                      const SizedBox(height: 16),
+                      Text(
+                        "Deslize ou toque ➡ para ver a resposta",
+                        style: TextStyle(color: Colors.white70),
+                      ),
+                      const SizedBox(height: 24),
+                      Text(
+                        "Selecione a dificuldade",
+                        style: TextStyle(fontSize: 18, color: Colors.white),
+                      ),
+                      const SizedBox(height: 12),
+                      _buildDifficultyChips(),
+                      const SizedBox(height: 20),
+                      ElevatedButton.icon(
+                        onPressed: sendFeedback,
+                        icon: Icon(Icons.check),
+                        label: Text("Enviar Feedback"),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.orange,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 14,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
         ),
       ),
     );
@@ -135,25 +142,30 @@ class _CardReviewScreenState extends State<CardReviewScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          Text(
+            title,
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 12),
           Expanded(
-            child: SingleChildScrollView(
-              child: Markdown(
-                data: content,
-                onTapLink: (text, href, title) async {
-                  if (href == null) return;
-                  final uri = Uri.parse(href);
-                  if (await canLaunchUrl(uri)){
-                    await launchUrl(uri, mode: LaunchMode.externalApplication);
-                  }else{
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Não foi possível abrir o link')),
-                    );
-                  }
+            child: Markdown(
+              data: content.trim().isEmpty ? '*[sem conteúdo]*' : content,
+              styleSheet: MarkdownStyleSheet.fromTheme(
+                Theme.of(context),
+              ).copyWith(p: const TextStyle(fontSize: 16)),
+              onTapLink: (text, href, title) async {
+                if (href == null) return;
+                final uri = Uri.parse(href);
+                if (await canLaunchUrl(uri)) {
+                  await launchUrl(uri, mode: LaunchMode.externalApplication);
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Não foi possível abrir o link'),
+                    ),
+                  );
                 }
-              ),
+              },
             ),
           ),
         ],
@@ -172,40 +184,41 @@ class _CardReviewScreenState extends State<CardReviewScreen> {
     return Wrap(
       spacing: 8,
       runSpacing: 4,
-      children: options.map((label) {
-        final isSelected = selectedDifficulty == label.$2;
-        final chipColor = () {
-          if (!isSelected) return Colors.grey[200];
-          switch (label.$1) {
-            case 'Fácil':
-              return Colors.green[300];
-            case 'Médio':
-              return Colors.yellow[300];
-            case 'Difícil':
-              return Colors.orange[400];
-            case 'De novo':
-              return Colors.red[400];
-            default:
-              return Colors.grey;
-          }
-        }();
+      children:
+          options.map((label) {
+            final isSelected = selectedDifficulty == label.$2;
+            final chipColor = () {
+              if (!isSelected) return Colors.grey[200];
+              switch (label.$1) {
+                case 'Fácil':
+                  return Colors.green[300];
+                case 'Médio':
+                  return Colors.yellow[300];
+                case 'Difícil':
+                  return Colors.orange[400];
+                case 'De novo':
+                  return Colors.red[400];
+                default:
+                  return Colors.grey;
+              }
+            }();
 
-        return ChoiceChip(
-          label: Text(
-            label.$1,
-            style: TextStyle(
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              color: Colors.black,
-            ),
-          ),
-          selected: isSelected,
-          selectedColor: chipColor,
-          backgroundColor: Colors.white,
-          onSelected: (_) {
-            setState(() => selectedDifficulty = label.$2);
-          },
-        );
-      }).toList(),
+            return ChoiceChip(
+              label: Text(
+                label.$1,
+                style: TextStyle(
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                  color: Colors.black,
+                ),
+              ),
+              selected: isSelected,
+              selectedColor: chipColor,
+              backgroundColor: Colors.white,
+              onSelected: (_) {
+                setState(() => selectedDifficulty = label.$2);
+              },
+            );
+          }).toList(),
     );
   }
 }
