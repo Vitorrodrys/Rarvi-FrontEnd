@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart'; // Import para Markdown
 import 'package:rarvi/services/api/rarvi_api.dart';
 import 'package:rarvi/services/api/schemas/card.dart';
 
@@ -19,17 +20,30 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class CriarCardScreen extends StatelessWidget {
+class CriarCardScreen extends StatefulWidget {
   final int to_discipline_id;
   const CriarCardScreen({super.key, required this.to_discipline_id});
 
   @override
+  State<CriarCardScreen> createState() => _CriarCardScreenState();
+}
+
+class _CriarCardScreenState extends State<CriarCardScreen> {
+  final tituloController = TextEditingController();
+  final perguntaController = TextEditingController();
+  final RarviAPI api = RarviAPI();
+
+  bool _previewResposta = false;
+
+  @override
+  void dispose() {
+    tituloController.dispose();
+    perguntaController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final tituloController = TextEditingController();
-    final perguntaController = TextEditingController();
-
-    final RarviAPI api = RarviAPI();
-
     return Scaffold(
       resizeToAvoidBottomInset: false,
       extendBody: true,
@@ -86,19 +100,54 @@ class CriarCardScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 24),
-                      TextField(
-                        controller: perguntaController,
-                        textAlign: TextAlign.center,
-                        decoration: const InputDecoration(
-                          hintText: 'Verso',
-                          hintStyle: TextStyle(
-                            fontSize: 18,
-                            color: Colors.grey,
+
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Visualizar Resposta (Markdown)',
+                            style: TextStyle(fontWeight: FontWeight.bold),
                           ),
-                          border: InputBorder.none,
-                        ),
-                        keyboardType: TextInputType.multiline,
-                        maxLines: 5,
+                          Switch(
+                            value: _previewResposta,
+                            onChanged: (val) {
+                              setState(() {
+                                _previewResposta = val;
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 8),
+
+                      SizedBox(
+                        height: 150,
+                        child: _previewResposta
+                            ? Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.grey),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Markdown(
+                                  data: perguntaController.text,
+                                  selectable: true,
+                                ),
+                              )
+                            : TextField(
+                                controller: perguntaController,
+                                decoration: const InputDecoration(
+                                  hintText: 'Verso',
+                                  hintStyle: TextStyle(
+                                    fontSize: 18,
+                                    color: Colors.grey,
+                                  ),
+                                  border: InputBorder.none,
+                                ),
+                                keyboardType: TextInputType.multiline,
+                                maxLines: null,
+                              ),
                       ),
                     ],
                   ),
@@ -117,7 +166,7 @@ class CriarCardScreen extends StatelessWidget {
                         CardCreateSchema(
                           question: tituloController.text,
                           answer: perguntaController.text,
-                          discipline_id: to_discipline_id,
+                          discipline_id: widget.to_discipline_id,
                         ),
                       );
                       Navigator.pop(context, true);

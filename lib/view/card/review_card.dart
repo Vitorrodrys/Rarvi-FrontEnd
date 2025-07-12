@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:rarvi/services/api/rarvi_api.dart';
 import 'package:rarvi/services/api/schemas/card.dart' as card_schema;
 import 'package:rarvi/view/card/card_buffer.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 void main() => runApp(CardReviewApp());
 
@@ -138,9 +140,19 @@ class _CardReviewScreenState extends State<CardReviewScreen> {
           const SizedBox(height: 12),
           Expanded(
             child: SingleChildScrollView(
-              child: Text(
-                content,
-                style: TextStyle(fontSize: 16, color: Colors.black87),
+              child: Markdown(
+                data: content,
+                onTapLink: (text, href, title) async {
+                  if (href == null) return;
+                  final uri = Uri.parse(href);
+                  if (await canLaunchUrl(uri)){
+                    await launchUrl(uri, mode: LaunchMode.externalApplication);
+                  }else{
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Não foi possível abrir o link')),
+                    );
+                  }
+                }
               ),
             ),
           ),

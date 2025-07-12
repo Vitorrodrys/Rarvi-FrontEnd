@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart'; // Import para Markdown
 import 'package:rarvi/services/api/rarvi_api.dart';
 import 'package:rarvi/services/api/schemas/card.dart';
 
@@ -16,6 +17,9 @@ class _EditarCardScreenState extends State<EditarCardScreen> {
   final TextEditingController _perguntaController = TextEditingController();
   final TextEditingController _respostaController = TextEditingController();
   bool _loading = true;
+
+  // NOVO: controle do modo de pré-visualização
+  bool _previewResposta = false;
 
   @override
   void initState() {
@@ -89,46 +93,84 @@ class _EditarCardScreenState extends State<EditarCardScreen> {
           ),
         ],
       ),
-      body:
-          _loading
-              ? const Center(child: CircularProgressIndicator())
-              : Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  children: [
-                    TextField(
-                      controller: _perguntaController,
-                      maxLines: 5,
-                      decoration: const InputDecoration(
-                        labelText: 'Frente (Pergunta)',
-                        border: OutlineInputBorder(),
-                      ),
+      body: _loading
+          ? const Center(child: CircularProgressIndicator())
+          : Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  TextField(
+                    controller: _perguntaController,
+                    maxLines: 5,
+                    decoration: const InputDecoration(
+                      labelText: 'Frente (Pergunta)',
+                      border: OutlineInputBorder(),
                     ),
-                    const SizedBox(height: 16),
-                    TextField(
-                      controller: _respostaController,
-                      maxLines: 5,
-                      decoration: const InputDecoration(
-                        labelText: 'Verso (Resposta)',
-                        border: OutlineInputBorder(),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // NOVO: linha com toggle para modo preview da resposta
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Visualizar Resposta (Markdown)',
+                        style: TextStyle(fontWeight: FontWeight.bold),
                       ),
-                    ),
-                    const SizedBox(height: 24),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: _salvarEdicao,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
-                          foregroundColor: Colors.white,
-                          minimumSize: const Size.fromHeight(50),
-                        ),
-                        child: const Text('Salvar alterações'),
+                      Switch(
+                        value: _previewResposta,
+                        onChanged: (val) {
+                          setState(() {
+                            _previewResposta = val;
+                          });
+                        },
                       ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  Expanded(
+                    child: _previewResposta
+                        ? Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Markdown(
+                              data: _respostaController.text,
+                              selectable: true,
+                            ),
+                          )
+                        : TextField(
+                            controller: _respostaController,
+                            maxLines: null,
+                            expands: true,
+                            decoration: const InputDecoration(
+                              labelText: 'Verso (Resposta)',
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
+                  ),
+
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _salvarEdicao,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        foregroundColor: Colors.white,
+                        minimumSize: const Size.fromHeight(50),
+                      ),
+                      child: const Text('Salvar alterações'),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
+            ),
     );
   }
 }
