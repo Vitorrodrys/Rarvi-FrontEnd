@@ -5,6 +5,7 @@ import 'package:rarvi/services/token_manager.dart';
 import 'package:rarvi/widgets/rounded_button.dart';
 import 'package:rarvi/widgets/rounded_text_field.dart';
 import 'package:rarvi/services/notification_token_handler.dart';
+
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -27,9 +28,10 @@ class _LoginState extends State<LoginScreen> {
         APIErrorEnum.tokenExpired,
         APIErrorEnum.loggedOut,
         APIErrorEnum.unauthorized,
-      ]
+      ],
     );
   }
+
   void _do_login() async {
     String user = _userController.text;
     String password = _passwordController.text;
@@ -151,17 +153,17 @@ class _LoginState extends State<LoginScreen> {
           },
         ),
         const SizedBox(height: 16),
-        Center(
-          child: TextButton(
-            onPressed: () {
-              Navigator.pushNamed(context, "/RecoveryPassword");
-            },
-            child: const Text(
-              "Esqueceu a senha?",
-              style: TextStyle(color: Colors.blue),
-            ),
-          ),
-        ),
+        // Center(
+        //   child: TextButton(
+        //     onPressed: () {
+        //       Navigator.pushNamed(context, "/RecoveryPassword");
+        //     },
+        //     child: const Text(
+        //       "Esqueceu a senha?",
+        //       style: TextStyle(color: Colors.blue),
+        //     ),
+        //   ),
+        // ),
         Center(
           child: TextButton(
             onPressed: () {
@@ -179,7 +181,7 @@ class _LoginState extends State<LoginScreen> {
 
   Future<void> _tryLogWithToken() async {
     final String? token = await TokenManager.get();
-    if ( token == null ){
+    if (token == null) {
       return;
     }
     _api.user.authWithToken(token);
