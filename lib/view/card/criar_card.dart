@@ -31,6 +31,7 @@ class CriarCardScreen extends StatelessWidget {
     final RarviAPI api = RarviAPI();
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       extendBody: true,
       body: Container(
         decoration: const BoxDecoration(

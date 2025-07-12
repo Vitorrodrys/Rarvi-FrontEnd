@@ -191,6 +191,7 @@ class _LoginState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     _tryLogWithToken();
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: Colors.blue[700],
       body: Center(
         child: SingleChildScrollView(

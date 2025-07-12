@@ -27,6 +27,7 @@ class FabNavScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       extendBody: true,
       body: body,
       backgroundColor: Colors.white,

@@ -79,6 +79,7 @@ class _EditarCardScreenState extends State<EditarCardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: const Text('Editar Card'),
         actions: [
