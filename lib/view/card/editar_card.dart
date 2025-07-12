@@ -51,7 +51,7 @@ class _EditarCardScreenState extends State<EditarCardScreen> {
           answer: _respostaController.text.trim(),
         ),
       );
-      if (mounted) Navigator.pop(context, true);
+      Navigator.pop(context, true);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -65,7 +65,7 @@ class _EditarCardScreenState extends State<EditarCardScreen> {
   Future<void> _deletarCard() async {
     try {
       await rarviApi.card.deleteCard(widget.cardId);
-      if (mounted) Navigator.pop(context, true);
+      Navigator.pop(context, true);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -79,6 +79,7 @@ class _EditarCardScreenState extends State<EditarCardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: const Text('Editar Card'),
         actions: [

@@ -206,15 +206,15 @@ class _DisciplineScreenState extends State<DisciplineScreen> {
                     hoverColor: Colors.transparent,
                     highlightColor: Colors.transparent,
                     splashColor: Colors.transparent,
-                    onTap:
-                        () => {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => EditarCardScreen(cardId: c.id),
-                            ),
-                          ),
-                        },
+                    onTap: () async {
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => EditarCardScreen(cardId: c.id),
+                        ),
+                      );
+                      _loadData();
+                    },
                     child: Container(
                       margin: const EdgeInsets.only(bottom: 12),
                       padding: const EdgeInsets.symmetric(

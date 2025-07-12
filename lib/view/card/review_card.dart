@@ -64,6 +64,7 @@ class _CardReviewScreenState extends State<CardReviewScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: const Color(0xFF2E64FE),
       body: SafeArea(
         child: Center(

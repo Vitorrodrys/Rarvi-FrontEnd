@@ -161,4 +161,19 @@ class UserAPI extends BaseAPI{
   void logout() {
     _dio.interceptors.removeWhere((element) => element is AuthInterceptor);
   }
+
+  // Updates the firebase notification token in the API
+  // this method required to be authenticated, so a previous call
+  // to auth method is required
+  Future<void> updateNotificationToken(String token) async {
+    _dio.patch(
+      "/v1/user/notification-token",
+      options: Options(
+        headers: {
+          "token": token
+        }
+      )
+    );
+  }
+
 }

@@ -21,6 +21,7 @@ class _RecoveryState extends State<RecoveryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: Colors.blue[700],
       body: Center(
         child: SingleChildScrollView(
