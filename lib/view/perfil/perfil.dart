@@ -58,25 +58,6 @@ class _PerfilScreenState extends State<PerfilScreen> {
                   height: 251,
                 ),
                 Positioned(
-                  top: 29,
-                  left: 25,
-                  child: IconButton(
-                    icon: const Icon(
-                      Icons.arrow_back_ios_new,
-                      color: Colors.white,
-                    ),
-                    onPressed: () {},
-                  ),
-                ),
-                Positioned(
-                  top: 29,
-                  right: 25,
-                  child: IconButton(
-                    icon: const Icon(Icons.edit, color: Colors.white),
-                    onPressed: () {},
-                  ),
-                ),
-                Positioned(
                   top: 78,
                   left: 0,
                   right: 0,

@@ -145,8 +145,9 @@ class RarviAPI {
   _dio = Dio(
     BaseOptions(
       baseUrl: Settings.apiUrl,
-      connectTimeout: const Duration(seconds: 15),
-      receiveTimeout: const Duration(seconds: 15),
+      connectTimeout: const Duration(seconds: 5),
+      receiveTimeout: const Duration(seconds: 5),
+      sendTimeout: const Duration(seconds: 5),
       validateStatus: (status) => status != null && status >= 200 && status < 300
     )
   ){
