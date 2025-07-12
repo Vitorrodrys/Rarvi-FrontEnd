@@ -4,6 +4,7 @@ import 'package:rarvi/services/api/schemas/card.dart' as RarviCard;
 import 'package:rarvi/services/api/schemas/discipline.dart';
 import 'package:rarvi/view/card/criar_card.dart';
 import 'package:rarvi/view/card/editar_card.dart';
+import 'package:rarvi/view/card/review_card.dart';
 import 'package:rarvi/widgets/fab_nav_scaffold.dart';
 
 void main() {
@@ -120,8 +121,11 @@ class _DisciplineScreenState extends State<DisciplineScreen> {
           ),
           const SizedBox(height: 16),
           ElevatedButton.icon(
-            onPressed: () {
-              // lógica da revisão aqui
+            onPressed: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => CardReviewScreen(disciplineId: widget.disciplineId)),
+              );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.orange,

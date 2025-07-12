@@ -1,255 +1,198 @@
-import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
-
-
+import 'package:rarvi/services/api/rarvi_api.dart';
+import 'package:rarvi/services/api/schemas/card.dart' as card_schema;
+import 'package:rarvi/view/card/card_buffer.dart';
 
 void main() => runApp(CardReviewApp());
 
 class CardReviewApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(home: CardReviewScreen());
+    return MaterialApp(home: CardReviewScreen(disciplineId: 0));
   }
 }
 
+const int CARD_BUFFER_SIZE = 10;
+
 class CardReviewScreen extends StatefulWidget {
+  final _api = RarviAPI();
+  late final CardBuffer _buffer;
+
+  CardReviewScreen({Key? key, required int disciplineId}) : super(key: key) {
+    _buffer = CardBuffer(_api, disciplineId, CARD_BUFFER_SIZE);
+  }
+
   @override
-  _CardReviewScreenState createState() => _CardReviewScreenState();
+  State<CardReviewScreen> createState() => _CardReviewScreenState();
 }
 
-class _CardReviewScreenState extends State<CardReviewScreen>
-    with SingleTickerProviderStateMixin {
-  bool showBack = false;
-  bool showFeedback = false;
-  String selectedDifficulty = '';
-  final String cardTitle = 'Título do Card';
-  final String cardBack =
-      'Esse é o verso do card com a resposta ou explicação. Pode ter muito texto, e por isso precisa rolar se for necessário. Aqui está mais conteúdo para forçar o overflow. Mais texto. Mais texto. Mais texto. Mais texto. Mais texto. Mais texto.';
+class _CardReviewScreenState extends State<CardReviewScreen> {
+  final PageController _pageController = PageController();
+  card_schema.Card? currentCard;
+  card_schema.CardDifficultyEnum? selectedDifficulty;
 
-  late final AnimationController _controller;
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 600),
-      vsync: this,
-      lowerBound: 0,
-      upperBound: 1,
-    );
+    _loadNextCard();
   }
 
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
+  Future<void> _loadNextCard() async {
+    setState(() {
+      isLoading = true;
+      selectedDifficulty = null;
+    });
 
-  void flipCard() {
-    if (showBack) {
-      _controller.reverse();
-    } else {
-      _controller.forward();
-    }
+    currentCard = await widget._buffer.getNext();
 
     setState(() {
-      showBack = !showBack;
-      if (showBack) {
-        showFeedback = true;
-      }
+      isLoading = false;
     });
   }
 
   void sendFeedback() {
-    if (selectedDifficulty.isNotEmpty) {
-      print("Feedback enviado: $selectedDifficulty");
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Feedback enviado com sucesso!")));
+    final id = currentCard?.id;
+    if (selectedDifficulty != null && id != null) {
+      widget._api.card.sendFeedBack(id, selectedDifficulty!);
+      _loadNextCard();
+      _pageController.jumpToPage(0); // Reinicia para a primeira página
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF6A82FB), Color(0xFF2E64FE)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
-        child: SafeArea(
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    "Review do Card",
-                    style: TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-
-                  // Área principal do card e feedback
-                  SizedBox(
-                    width: 400, // Aumentado
-                    child: Column(
-                      children: [
-                        AnimatedBuilder(
-                          animation: _controller,
-                          builder: (context, child) {
-                            final isFront = _controller.value < 0.5;
-                            final displayText = isFront ? cardTitle : cardBack;
-
-                            final rotationValue =
-                                isFront
-                                    ? _controller.value
-                                    : _controller.value -
-                                        1; // gira de -1 a 0 no verso
-
-                            return Transform(
-                              transform: Matrix4.rotationY(
-                                rotationValue * 3.1416,
-                              ),
-                              alignment: Alignment.center,
-                              child: Container(
-                                height: 240,
-                                width: double.infinity,
-                                padding: const EdgeInsets.all(20),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: SingleChildScrollView(
-                                  child: Text(
-                                    displayText,
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      color: Colors.black87,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                        const SizedBox(height: 20),
-                        IconButton(
-                          iconSize: 36,
-                          onPressed: flipCard,
-                          icon: RotationTransition(
-                            turns: Tween(
-                              begin: 0.0,
-                              end: 1.0,
-                            ).animate(_controller),
-                            child: Icon(Icons.refresh, color: Colors.white),
-                          ),
-                        ),
-                        if (showFeedback) ...[
-                          const SizedBox(height: 30),
-                          Text(
-                            "Selecione a dificuldade",
-                            style: TextStyle(fontSize: 18, color: Colors.white),
-                          ),
-                          const SizedBox(height: 16),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children:
-                                ['Fácil', 'Médio', 'Difícil', 'De novo'].map((
-                                  label,
-                                ) {
-                                  final isSelected =
-                                      selectedDifficulty == label;
-
-                                  final chipColor = () {
-                                    if (!isSelected) return Colors.grey[200];
-                                    switch (label) {
-                                      case 'Fácil':
-                                        return Colors.green[300];
-                                      case 'Médio':
-                                        return Colors.yellow[300];
-                                      case 'Difícil':
-                                        return Colors.orange[400];
-                                      case 'De novo':
-                                        return Colors.red[400];
-                                      default:
-                                        return Colors.grey;
-                                    }
-                                  }();
-
-                                  return Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 4,
-                                    ),
-                                    child: AnimatedContainer(
-                                      duration: Duration(milliseconds: 300),
-                                      width:
-                                          isSelected
-                                              ? 110
-                                              : 80, // largura maior se selecionado
-                                      child: ChoiceChip(
-                                        label: Text(
-                                          label,
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            fontWeight:
-                                                isSelected
-                                                    ? FontWeight.bold
-                                                    : FontWeight.normal,
-                                            color: Colors.black,
-                                          ),
-                                        ),
-                                        selected: isSelected,
-                                        selectedColor: chipColor,
-                                        backgroundColor: Colors.white,
-                                        onSelected: (_) {
-                                          setState(
-                                            () => selectedDifficulty = label,
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                  );
-                                }).toList(),
-                          ),
-
-                          const SizedBox(height: 24),
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton.icon(
-                              onPressed: sendFeedback,
-                              icon: Icon(Icons.check),
-                              label: Text("Enviar Feedback"),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.orange,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 24,
-                                  vertical: 14,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30),
-                                ),
-                              ),
-                            ),
-                          ),
+      backgroundColor: const Color(0xFF2E64FE),
+      body: SafeArea(
+        child: Center(
+          child: isLoading || currentCard == null
+              ? const CircularProgressIndicator(color: Colors.white)
+              : Column(
+                  children: [
+                    const SizedBox(height: 20),
+                    SizedBox(
+                      height: 280,
+                      width: 380,
+                      child: PageView(
+                        controller: _pageController,
+                        children: [
+                          _buildBookPage(currentCard!.question, title: 'Pergunta'),
+                          _buildBookPage(currentCard!.answer ?? "[sem resposta]", title: 'Resposta'),
                         ],
-                      ],
+                      ),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 16),
+                    Text(
+                      "Deslize ou toque ➡ para ver a resposta",
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                    const SizedBox(height: 24),
+                    Text(
+                      "Selecione a dificuldade",
+                      style: TextStyle(fontSize: 18, color: Colors.white),
+                    ),
+                    const SizedBox(height: 12),
+                    _buildDifficultyChips(),
+                    const SizedBox(height: 20),
+                    ElevatedButton.icon(
+                      onPressed: sendFeedback,
+                      icon: Icon(Icons.check),
+                      label: Text("Enviar Feedback"),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 14,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBookPage(String content, {required String title}) {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        color: Color(0xFFFDF6E3),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(color: Colors.black26, blurRadius: 6, offset: Offset(2, 2)),
+        ],
+      ),
+      padding: EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title,
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 12),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Text(
+                content,
+                style: TextStyle(fontSize: 16, color: Colors.black87),
               ),
             ),
           ),
-        ),
+        ],
       ),
+    );
+  }
+
+  Widget _buildDifficultyChips() {
+    final options = [
+      ('Fácil', card_schema.CardDifficultyEnum.easy),
+      ('Médio', card_schema.CardDifficultyEnum.medium),
+      ('Difícil', card_schema.CardDifficultyEnum.hard),
+      ('De novo', card_schema.CardDifficultyEnum.again),
+    ];
+
+    return Wrap(
+      spacing: 8,
+      runSpacing: 4,
+      children: options.map((label) {
+        final isSelected = selectedDifficulty == label.$2;
+        final chipColor = () {
+          if (!isSelected) return Colors.grey[200];
+          switch (label.$1) {
+            case 'Fácil':
+              return Colors.green[300];
+            case 'Médio':
+              return Colors.yellow[300];
+            case 'Difícil':
+              return Colors.orange[400];
+            case 'De novo':
+              return Colors.red[400];
+            default:
+              return Colors.grey;
+          }
+        }();
+
+        return ChoiceChip(
+          label: Text(
+            label.$1,
+            style: TextStyle(
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              color: Colors.black,
+            ),
+          ),
+          selected: isSelected,
+          selectedColor: chipColor,
+          backgroundColor: Colors.white,
+          onSelected: (_) {
+            setState(() => selectedDifficulty = label.$2);
+          },
+        );
+      }).toList(),
     );
   }
 }
