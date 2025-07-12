@@ -27,12 +27,20 @@ CardUpdateSchema _$CardUpdateSchemaFromJson(Map<String, dynamic> json) =>
       discipline_id: (json['discipline_id'] as num?)?.toInt(),
     );
 
-Map<String, dynamic> _$CardUpdateSchemaToJson(CardUpdateSchema instance) =>
-    <String, dynamic>{
-      'question': instance.question,
-      'answer': instance.answer,
-      'discipline_id': instance.discipline_id,
-    };
+Map<String, dynamic> _$CardUpdateSchemaToJson(CardUpdateSchema instance) {
+  final val = <String, dynamic>{};
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('question', instance.question);
+  writeNotNull('answer', instance.answer);
+  writeNotNull('discipline_id', instance.discipline_id);
+  return val;
+}
 
 Card _$CardFromJson(Map<String, dynamic> json) => Card(
       id: (json['id'] as num).toInt(),
