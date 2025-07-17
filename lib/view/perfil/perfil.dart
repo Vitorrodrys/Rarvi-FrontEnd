@@ -112,7 +112,11 @@ class _PerfilScreenState extends State<PerfilScreen> {
                       onPressed: () {
                         TokenManager.drop();
                         RarviAPI().user.logout();
-                        Navigator.pop(context);
+                        Navigator.pushNamedAndRemoveUntil(
+                          context,
+                          "/login",
+                          (route) => false,
+                        );
                       },
                       icon: const Icon(
                         Icons.exit_to_app,

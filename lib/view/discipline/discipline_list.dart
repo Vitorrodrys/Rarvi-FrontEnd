@@ -72,8 +72,14 @@ class _DisciplineScreenState extends State<DisciplineScreen> {
   Widget build(BuildContext context) {
     return FabNavScaffold(
       selectedItem: FabNavItem.home,
-      homeAction: () => Navigator.pushNamed(context, "/home"),
-      perfilAction: () => Navigator.pushNamed(context, "/perfil"),
+      homeAction: () {
+        Navigator.pop(context);
+        Navigator.pushNamed(context, "/home");
+      },
+      perfilAction: () {
+        Navigator.pop(context);  
+        Navigator.pushNamed(context, "/perfil");
+      },
       fabAction: () {},
       body:
           _loading
@@ -183,11 +189,11 @@ class _DisciplineScreenState extends State<DisciplineScreen> {
         content: Text('Tem certeza que deseja deletar esta pergunta?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(false), // Cancela
+            onPressed: () => Navigator.of(context).pop(false),
             child: Text('Cancelar'),
           ),
           TextButton(
-            onPressed: () => Navigator.of(context).pop(true), // Confirma
+            onPressed: () => Navigator.of(context).pop(true),
             child: Text('Deletar'),
           ),
         ],
